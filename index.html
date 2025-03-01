@@ -1,0 +1,388 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2758
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 <!DOCTYPE html>\
+<html lang="sv">\
+<head>\
+    <meta charset="UTF-8">\
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">\
+    <title>Jobbhantering</title>\
+    <style>\
+        :root \{\
+            --primary-color: #007BFF;\
+            --secondary-color: #6c757d;\
+            --background-color: #f8f9fa;\
+            --text-color: #212529;\
+            --font-family: 'Arial', sans-serif;\
+        \}\
+\
+        body \{\
+            font-family: var(--font-family);\
+            background-color: var(--background-color);\
+            color: var(--text-color);\
+            padding: 20px;\
+            margin: 0;\
+        \}\
+\
+        h2, h3 \{\
+            color: var(--primary-color);\
+        \}\
+\
+        button \{\
+            background-color: var(--primary-color);\
+            color: white;\
+            border: none;\
+            padding: 10px 15px;\
+            margin: 5px;\
+            cursor: pointer;\
+            border-radius: 5px;\
+            transition: background-color 0.3s ease;\
+        \}\
+\
+        button:hover \{\
+            background-color: #0056b3;\
+        \}\
+\
+        button.selected \{\
+            background-color: var(--secondary-color);\
+        \}\
+\
+        textarea, input, select \{\
+            width: 100%;\
+            padding: 10px;\
+            margin-top: 5px;\
+            border-radius: 5px;\
+            border: 1px solid var(--secondary-color);\
+        \}\
+\
+        ul \{\
+            list-style-type: none;\
+            padding: 0;\
+        \}\
+\
+        li \{\
+            background-color: white;\
+            padding: 10px;\
+            margin-bottom: 10px;\
+            border-radius: 5px;\
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);\
+            display: flex;\
+            justify-content: space-between;\
+            align-items: center;\
+        \}\
+\
+        #projectOverview, #jobListPage, #adminPanel, #addProjectForm, #addJobForm, #jobDetails \{\
+            display: none;\
+            background-color: white;\
+            padding: 20px;\
+            border-radius: 10px;\
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);\
+            margin-top: 20px;\
+        \}\
+\
+        #imagePreview img \{\
+            max-width: 100%;\
+            height: auto;\
+            margin-top: 10px;\
+            border-radius: 5px;\
+        \}\
+\
+        .back-button \{\
+            background-color: var(--secondary-color);\
+        \}\
+\
+        .back-button:hover \{\
+            background-color: #5a6268;\
+        \}\
+\
+        .status \{\
+            padding: 5px 10px;\
+            border-radius: 5px;\
+            color: white;\
+            font-size: 0.9em;\
+        \}\
+\
+        .status.BOM \{ background-color: #ffc107; \}\
+        .status.Klar \{ background-color: #28a745; \}\
+        .status.Beh\'f6ver \'e5terg\'e4ldas \{ background-color: #dc3545; \}\
+\
+        /* Responsiv design */\
+        @media (max-width: 768px) \{\
+            body \{\
+                padding: 10px;\
+            \}\
+\
+            button \{\
+                width: 100%;\
+                margin: 5px 0;\
+            \}\
+\
+            #projectOverview, #jobListPage, #adminPanel, #addProjectForm, #addJobForm, #jobDetails \{\
+                padding: 10px;\
+            \}\
+        \}\
+    </style>\
+</head>\
+<body>\
+    <!-- F\'f6rsta sidan: Projekt\'f6versikt -->\
+    <div id="projectOverview">\
+        <h2>Projekt\'f6versikt</h2>\
+        <div class="button-group">\
+            <button onclick="openAdmin()">\uc0\u9881 \u65039  Inst\'e4llningar</button>\
+            <button onclick="logout()">\uc0\u55357 \u57002  Logga ut</button>\
+            <button onclick="showAddProjectForm()">\uc0\u10133  L\'e4gg till projekt</button>\
+        </div>\
+        <!-- S\'f6kruta -->\
+        <input type="text" id="searchInput" placeholder="S\'f6k projekt eller jobb (l\'e4genhetsnummer/adress)" oninput="searchProjectsAndJobs()">\
+        <ul id="projectList"></ul>\
+    </div>\
+\
+    <!-- Formul\'e4r f\'f6r att l\'e4gga till nytt projekt -->\
+    <div id="addProjectForm">\
+        <h3>L\'e4gg till nytt projekt</h3>\
+        <input type="text" id="newProjectName" placeholder="Projektnamn">\
+        <input type="text" id="newProjectAddress" placeholder="Adress">\
+        <button onclick="addProject()">\uc0\u10004 \u65039  L\'e4gg till</button>\
+        <button onclick="hideAddProjectForm()">\uc0\u10060  Avbryt</button>\
+    </div>\
+\
+    <!-- Jobblista f\'f6r specifikt projekt -->\
+    <div id="jobListPage">\
+        <h2>Jobblista f\'f6r <span id="projectName"></span></h2>\
+        <button onclick="goBackToProjects()">\uc0\u11013 \u65039  Tillbaka till projekt</button>\
+        <button onclick="showAddJobForm()">\uc0\u10133  L\'e4gg till jobb</button>\
+        <button onclick="downloadProjectPDF()">\uc0\u55357 \u56516  Ladda ner hela projektet som PDF</button>\
+        <input type="file" id="fileUpload" accept=".xlsx, .xls" onchange="handleFileUpload(event)">\
+        <ul id="jobList"></ul>\
+    </div>\
+\
+    <!-- Formul\'e4r f\'f6r att l\'e4gga till nytt jobb -->\
+    <div id="addJobForm">\
+        <h3>L\'e4gg till nytt jobb</h3>\
+        <input type="text" id="newApartment" placeholder="L\'e4genhetsnummer">\
+        <textarea id="newJobComment" placeholder="Beskrivning av jobbet"></textarea>\
+        <button onclick="addJob()">\uc0\u10004 \u65039  L\'e4gg till</button>\
+        <button onclick="hideAddJobForm()">\uc0\u10060  Avbryt</button>\
+    </div>\
+\
+    <!-- Jobbdetaljer -->\
+    <div id="jobDetails">\
+        <h2>Jobbdetaljer</h2>\
+        <p><strong>L\'e4genhet:</strong> <span id="apartmentNumber"></span></p>\
+        <p><strong>Status:</strong> <span id="currentStatus" class="status"></span></p>\
+        <p><strong>Beskrivning:</strong> <span id="jobComment"></span></p>\
+\
+        <h3>Kommentarer</h3>\
+        <div id="commentsSection"></div>\
+        <textarea id="newComment" placeholder="Skriv en kommentar"></textarea>\
+        <button onclick="addComment()">\uc0\u10133  L\'e4gg till kommentar</button>\
+\
+        <h3>Bifoga fil</h3>\
+        <input type="file" id="fileUploadJob" onchange="handleFileUploadJob(event)">\
+        <div id="filePreview"></div>\
+\
+        <button class="back-button" onclick="goBackToJobList()">\uc0\u11013 \u65039  Tillbaka till jobblista</button>\
+    </div>\
+\
+    <!-- Admininst\'e4llningar -->\
+    <div id="adminPanel">\
+        <h2>Admininst\'e4llningar</h2>\
+        <h3>L\'e4gg till anst\'e4llda</h3>\
+        <input type="text" id="newEmployee" placeholder="Anst\'e4lld namn">\
+        <button onclick="addEmployee()">\uc0\u10133  L\'e4gg till anst\'e4lld</button>\
+        <ul id="employeeList"></ul>\
+\
+        <button class="back-button" onclick="closeAdmin()">\uc0\u11013 \u65039  Tillbaka</button>\
+    </div>\
+\
+    <script>\
+        let projects = []; // Lista \'f6ver projekt\
+        let employees = []; // Lista \'f6ver anst\'e4llda\
+        let selectedProject = null; // Aktuellt valt projekt\
+        let selectedJob = null; // Aktuellt valt jobb\
+\
+        // Visa projekt\'f6versikten som standard\
+        showProjectOverview();\
+\
+        // Funktion f\'f6r att visa projekt\'f6versikten\
+        function showProjectOverview() \{\
+            document.getElementById("projectOverview").style.display = "block";\
+            document.getElementById("jobListPage").style.display = "none";\
+            document.getElementById("addProjectForm").style.display = "none";\
+            document.getElementById("adminPanel").style.display = "none";\
+            document.getElementById("addJobForm").style.display = "none";\
+            document.getElementById("jobDetails").style.display = "none";\
+            loadProjects();\
+        \}\
+\
+        // Funktion f\'f6r att ladda projekt\
+        function loadProjects() \{\
+            document.getElementById("projectList").innerHTML = projects.map((project, index) => \
+                `<li>\
+                    <strong>$\{project.name\}</strong> ($\{project.address\})\
+                    <button onclick="viewProject($\{index\})">\uc0\u55357 \u56589  Visa jobb</button>\
+                    <button onclick="downloadProjectPDF($\{index\})">\uc0\u55357 \u56516  Ladda ner projekt</button>\
+                </li>`\
+            ).join("");\
+        \}\
+\
+        // Funktion f\'f6r att visa jobblista f\'f6r ett specifikt projekt\
+        function viewProject(index) \{\
+            selectedProject = projects[index];\
+            if (!selectedProject) return;\
+\
+            document.getElementById("projectName").innerText = selectedProject.name;\
+            document.getElementById("jobListPage").style.display = "block";\
+            document.getElementById("projectOverview").style.display = "none";\
+            loadJobs();\
+        \}\
+\
+        // Funktion f\'f6r att ladda jobb f\'f6r det valda projektet\
+        function loadJobs() \{\
+            if (!selectedProject) return;\
+            document.getElementById("jobList").innerHTML = selectedProject.jobs.map((job, index) => \
+                `<li>\
+                    <strong>$\{job.apartment\}</strong>: $\{job.comment\}\
+                    <span class="status $\{job.status || 'Ingen status'\}">$\{job.status || 'Ingen status'\}</span>\
+                    <button onclick="viewJob($\{index\})">\uc0\u55357 \u56589  Visa detaljer</button>\
+                </li>`\
+            ).join("");\
+        \}\
+\
+        // Funktion f\'f6r att visa jobbdetaljer\
+        function viewJob(index) \{\
+            selectedJob = selectedProject.jobs[index];\
+            if (!selectedJob) return;\
+\
+            document.getElementById("apartmentNumber").innerText = selectedJob.apartment;\
+            document.getElementById("currentStatus").innerText = selectedJob.status || 'Ingen status';\
+            document.getElementById("currentStatus").className = `status $\{selectedJob.status || 'Ingen status'\}`;\
+            document.getElementById("jobComment").innerText = selectedJob.comment;\
+\
+            // Visa kommentarer\
+            document.getElementById("commentsSection").innerHTML = selectedJob.comments.map(c => `<p>- $\{c\}</p>`).join("");\
+\
+            // Visa bifogade filer\
+            document.getElementById("filePreview").innerHTML = selectedJob.files ? selectedJob.files.map(file => `<p>\uc0\u55357 \u56516  $\{file.name\}</p>`).join("") : "";\
+\
+            document.getElementById("jobDetails").style.display = "block";\
+            document.getElementById("jobListPage").style.display = "none";\
+        \}\
+\
+        // Funktion f\'f6r att l\'e4gga till kommentar\
+        function addComment() \{\
+            if (!selectedJob) return;\
+            let newComment = document.getElementById("newComment").value;\
+            if (newComment.trim() !== "") \{\
+                if (!selectedJob.comments) selectedJob.comments = [];\
+                selectedJob.comments.push(newComment);\
+                document.getElementById("commentsSection").innerHTML += `<p>- $\{newComment\}</p>`;\
+                document.getElementById("newComment").value = "";\
+            \}\
+        \}\
+\
+        // Funktion f\'f6r att bifoga fil till jobb\
+        function handleFileUploadJob(event) \{\
+            if (!selectedJob) return;\
+            let file = event.target.files[0];\
+            if (file) \{\
+                if (!selectedJob.files) selectedJob.files = [];\
+                selectedJob.files.push(file);\
+                document.getElementById("filePreview").innerHTML += `<p>\uc0\u55357 \u56516  $\{file.name\}</p>`;\
+            \}\
+        \}\
+\
+        // Funktion f\'f6r att g\'e5 tillbaka till jobblistan\
+        function goBackToJobList() \{\
+            document.getElementById("jobDetails").style.display = "none";\
+            document.getElementById("jobListPage").style.display = "block";\
+        \}\
+\
+        // Funktion f\'f6r att g\'e5 tillbaka till projekt\'f6versikten\
+        function goBackToProjects() \{\
+            showProjectOverview();\
+        \}\
+\
+        // Funktion f\'f6r att \'f6ppna admininst\'e4llningar\
+        function openAdmin() \{\
+            document.getElementById("adminPanel").style.display = "block";\
+            document.getElementById("projectOverview").style.display = "none";\
+            loadEmployees();\
+        \}\
+\
+        function closeAdmin() \{\
+            document.getElementById("adminPanel").style.display = "none";\
+            document.getElementById("projectOverview").style.display = "block";\
+        \}\
+\
+        // Funktion f\'f6r att l\'e4gga till anst\'e4llda\
+        function addEmployee() \{\
+            let name = document.getElementById("newEmployee").value;\
+            if (name) \{ employees.push(name); loadEmployees(); \}\
+        \}\
+\
+        function loadEmployees() \{\
+            document.getElementById("employeeList").innerHTML = employees.map(e => `<li>$\{e\}</li>`).join("");\
+        \}\
+\
+        // Funktion f\'f6r att logga ut\
+        function logout() \{\
+            alert("Utloggad!");\
+        \}\
+\
+        // Funktion f\'f6r att ladda ner hela projektet som PDF\
+        function downloadProjectPDF(projectIndex) \{\
+            const \{ jsPDF \} = window.jspdf;\
+            const doc = new jsPDF();\
+\
+            const project = projects[projectIndex];\
+            doc.text(`Projekt: $\{project.name\}`, 10, 10);\
+            doc.text(`Adress: $\{project.address\}`, 10, 20);\
+            doc.text("Jobblista:", 10, 30);\
+\
+            project.jobs.forEach((job, index) => \{\
+                doc.text(`$\{job.apartment\}: $\{job.comment\}`, 10, 40 + (index * 10));\
+            \});\
+\
+            doc.save(`$\{project.name\}.pdf`);\
+        \}\
+\
+        // Funktion f\'f6r att hantera filuppladdning (Excel)\
+        function handleFileUpload(event) \{\
+            const file = event.target.files[0];\
+            if (file) \{\
+                const reader = new FileReader();\
+                reader.onload = function(e) \{\
+                    const data = new Uint8Array(e.target.result);\
+                    const workbook = XLSX.read(data, \{ type: 'array' \});\
+                    const sheetName = workbook.SheetNames[0];\
+                    const worksheet = workbook.Sheets[sheetName];\
+                    const json = XLSX.utils.sheet_to_json(worksheet);\
+\
+                    json.forEach(row => \{\
+                        selectedProject.jobs.push(\{\
+                            apartment: row.L\'e4genhetsnummer,\
+                            comment: row.Beskrivning,\
+                            status: row.Status || null,\
+                            comments: [],\
+                            images: [],\
+                            bomTime: null\
+                        \});\
+                    \});\
+\
+                    loadJobs();\
+                    alert("Filen har laddats upp och jobben har lagts till!");\
+                \};\
+                reader.readAsArrayBuffer(file);\
+            \}\
+        \}\
+    </script>\
+    <!-- Externa bibliotek -->\
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>\
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>\
+</body>\
+</html>}
